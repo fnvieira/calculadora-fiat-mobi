@@ -77,11 +77,9 @@ st.markdown("---")
 with st.sidebar:
     st.header("Dados do Contrato")
     st.write(f"**Parcelas:** {n_parcelas} x R$ {pmt:.2f}")
-    st.write(f"**Taxa de juros mensal:** {taxa_mensal:.4%}")
     st.write(f"**Data de assinatura:** {data_inicio.strftime('%d/%m/%Y')}")
     st.write("**Multa por atraso:** 10%")
     st.write("**Juros de mora:** 1% ao mês")
-    st.write(f"**Desconto máximo:** {DESCONTO_MAXIMO*100:.0f}% na última parcela")
 
 st.subheader("📅 Data de Referência")
 data_input = st.date_input("Selecione a data para cálculo:", value=datetime(2026, 3, 12), min_value=data_inicio, format="DD/MM/YYYY")
