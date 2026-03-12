@@ -187,9 +187,7 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Total Vencidas (Nominal)", f"R$ {total_nominal_vencidas:.2f}")
 with col2:
-    st.metric("Total Devido Vencidas", f"R$ {total_devido_vencidas:.2f}")
-    if total_nominal_vencidas > 0:
-        st.caption(f"Acréscimo: R$ {total_devido_vencidas - total_nominal_vencidas:.2f}")
+    
 with col3:
     st.metric("Total Futuras (Nominal)", f"R$ {total_nominal_futuras:.2f}")
 with col4:
@@ -198,5 +196,4 @@ with col4:
         st.caption(f"Desconto: R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
 
 st.markdown("---")
-st.caption("*Parcelas com limite de 40% de desconto aplicado")
-st.caption(f"Multa: 10% | Juros de mora: 1% ao mês | Desconto máximo: {DESCONTO_MAXIMO:.0%} na última parcela")
+st.caption(f"Multa: 10% | Juros de mora: 1% ao mês ")
