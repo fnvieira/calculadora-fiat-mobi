@@ -86,7 +86,7 @@ with col1:
     )
     data_hoje = datetime.combine(data_input, datetime.min.time())
 with col2:
-    st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
+   # st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
 
 # Determinar última parcela futura
 venc_ultima = data_vencimento(60)
