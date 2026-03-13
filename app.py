@@ -3,6 +3,7 @@ import numpy as np
 from datetime import datetime
 from scipy.optimize import root_scalar
 import pandas as pd
+from io import BytesIO
 
 # ==============================================
 # DADOS FIXOS DO CONTRATO
@@ -16,10 +17,9 @@ dia_vencimento = 1                           # DIA 01
 DESCONTO_MAXIMO = 0.4                         # 40% máximo (sobre o prazo total)
 MULTA = 0.10                                   # 10% sobre a parcela atrasada
 JUROS_MORA_MENSAL = 0.01                       # 1% ao mês
-#data_atual = datetime(2026,3,12)
 
 # Prazo total da última parcela (da assinatura ao vencimento) em meses
-T_total = 51.0  # fixo, pois são 60 meses
+T_total = 51.0  # 60 meses do contrato
 
 # ==============================================
 # CÁLCULO DA TAXA DE JUROS
@@ -99,6 +99,8 @@ with col1:
         format="DD/MM/YYYY"
     )
     data_hoje = datetime.combine(data_input, datetime.min.time())
+with col2:
+    st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
 
 # Gerar dados para a tabela
 dados = []
@@ -140,9 +142,11 @@ for num in range(1, n_parcelas + 1):
         total_nominal_futuras += pmt
         total_antecipado_futuras += valor_antecipado
 
+# Criar DataFrame
+df = pd.DataFrame(dados)
+
 # Exibir tabela
 st.subheader("📊 Situação das Parcelas")
-df = pd.DataFrame(dados)
 st.dataframe(
     df.style.format({
         "Valor nominal": "R$ {:.2f}",
@@ -155,7 +159,29 @@ st.dataframe(
     height=600
 )
 
-# Totais (apenas o que você quer exibir)
+# Botão de exportação para Excel
+@st.cache_data
+def converter_df_para_excel(df, data_ref):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Parcelas')
+        # Adicionar informação da data de referência em uma célula
+        workbook = writer.book
+        sheet = workbook['Parcelas']
+        sheet['A1'] = f"Data de referência: {data_ref.strftime('%d/%m/%Y')}"
+    processed_data = output.getvalue()
+    return processed_data
+
+if not df.empty:
+    excel_data = converter_df_para_excel(df, data_hoje)
+    st.download_button(
+        label="📥 Exportar para Excel",
+        data=excel_data,
+        file_name=f"parcelas_{data_hoje.strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# Totais
 st.markdown("---")
 st.subheader("📈 Resumo")
 col_res1, col_res2 = st.columns(2)
@@ -166,4 +192,4 @@ with col_res2:
 
 st.metric("💰 Total para antecipação hoje", f"R$ {total_antecipado_futuras:.2f}")
 if total_nominal_futuras > 0:
-    st.metric("Desconto total se pago na data atual com antecipaçao", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
+    st.metric("Desconto total se pago na data atual com antecipação", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
