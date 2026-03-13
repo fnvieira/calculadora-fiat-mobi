@@ -13,9 +13,12 @@ n_parcelas = 60
 valor_a_vista = 60000.0
 data_inicio = datetime(2025, 6, 2)          # data da assinatura
 dia_vencimento = 1                           # DIA 01
-DESCONTO_MAXIMO = 0.4                         # 40% máximo na última parcela
+DESCONTO_MAXIMO = 0.4                         # 40% máximo (sobre o prazo total)
 MULTA = 0.10                                   # 10% sobre a parcela atrasada
 JUROS_MORA_MENSAL = 0.01                       # 1% ao mês
+
+# Prazo total da última parcela (da assinatura ao vencimento) em meses
+T_total = 60.0  # fixo, pois são 60 meses
 
 # ==============================================
 # CÁLCULO DA TAXA DE JUROS
@@ -58,12 +61,15 @@ def valor_vencido(vencimento, data_atual):
     total = pmt + multa + juros
     return total, multa, juros
 
-def valor_presente_futuro(numero_parcela, data_atual, t_max):
+def valor_presente_futuro(numero_parcela, data_atual):
     venc = data_vencimento(numero_parcela)
-    t = meses_entre(venc, data_atual)
+    t = meses_entre(venc, data_atual)  # tempo restante em meses
+    if t <= 0:
+        return pmt, False  # já vencida (não deve ocorrer aqui)
     vp_calculado = pmt / (1 + taxa_mensal) ** t
-    # Valor mínimo linear: de 100% (t=0) até (1-DESCONTO_MAXIMO)*100% (t=t_max)
-    valor_minimo = pmt * (1 - DESCONTO_MAXIMO * (t / t_max))
+    # Limite linear baseado no prazo total de 60 meses
+    valor_minimo = pmt * (1 - DESCONTO_MAXIMO * (t / T_total))
+    # Garante que o valor mínimo não seja menor que o justo (já calculado)
     if vp_calculado < valor_minimo:
         return valor_minimo, True
     else:
@@ -92,16 +98,8 @@ with col1:
         format="DD/MM/YYYY"
     )
     data_hoje = datetime.combine(data_input, datetime.min.time())
-#with col2:
-  #  st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
-
-# Determinar última parcela futura
-venc_ultima = data_vencimento(60)
-if venc_ultima <= data_hoje:
-    st.warning("Não há parcelas futuras. Todas já venceram.")
-    t_max = None
-else:
-    t_max = meses_entre(venc_ultima, data_hoje)
+with col2:
+    st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
 
 # Gerar dados para a tabela
 dados = []
@@ -129,20 +127,19 @@ for num in range(1, n_parcelas + 1):
         total_devido_vencidas += valor_devido
     else:
         # Futura
-        if t_max:
-            valor_antecipado, _ = valor_presente_futuro(num, data_hoje, t_max)
-            dados.append({
-                "Parcela": num,
-                "Vencimento": venc.strftime("%d/%m/%Y"),
-                "Tipo": "FUTURA",
-                "Valor nominal": pmt,
-                "Multa (10%)": 0.0,
-                "Juros (1% a.m.)": 0.0,
-                "Valor hoje": valor_antecipado,
-                "Diferença": valor_antecipado - pmt
-            })
-            total_nominal_futuras += pmt
-            total_antecipado_futuras += valor_antecipado
+        valor_antecipado, _ = valor_presente_futuro(num, data_hoje)
+        dados.append({
+            "Parcela": num,
+            "Vencimento": venc.strftime("%d/%m/%Y"),
+            "Tipo": "FUTURA",
+            "Valor nominal": pmt,
+            "Multa (10%)": 0.0,
+            "Juros (1% a.m.)": 0.0,
+            "Valor hoje": valor_antecipado,
+            "Diferença": valor_antecipado - pmt
+        })
+        total_nominal_futuras += pmt
+        total_antecipado_futuras += valor_antecipado
 
 # Exibir tabela
 st.subheader("📊 Situação das Parcelas")
@@ -166,8 +163,8 @@ col_res1, col_res2 = st.columns(2)
 with col_res1:
     st.metric("Total vencidas (nominal)", f"R$ {total_nominal_vencidas:.2f}")
 with col_res2:
-    st.metric("Total a Vencer (nomina)", f"R$ {total_nominal_futuras:.2f}")
+    st.metric("Total a Vencer (nominal)", f"R$ {total_nominal_futuras:.2f}")
 
-st.metric("💰 Total para pagamento antecipado hoje", f"R$ {total_antecipado_futuras:.2f}")
+st.metric("💰 Total para antecipação hoje", f"R$ {total_antecipado_futuras:.2f}")
 if total_nominal_futuras > 0:
     st.metric("Desconto total em futuras", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
