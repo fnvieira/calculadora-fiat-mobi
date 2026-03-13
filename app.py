@@ -16,6 +16,7 @@ dia_vencimento = 1                           # DIA 01
 DESCONTO_MAXIMO = 0.4                         # 40% máximo (sobre o prazo total)
 MULTA = 0.10                                   # 10% sobre a parcela atrasada
 JUROS_MORA_MENSAL = 0.01                       # 1% ao mês
+data_atual = datetime(2026,3,12)
 
 # Prazo total da última parcela (da assinatura ao vencimento) em meses
 T_total = 60.0  # fixo, pois são 60 meses
@@ -98,8 +99,6 @@ with col1:
         format="DD/MM/YYYY"
     )
     data_hoje = datetime.combine(data_input, datetime.min.time())
-with col2:
-    st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
 
 # Gerar dados para a tabela
 dados = []
