@@ -166,8 +166,8 @@ col_res1, col_res2 = st.columns(2)
 with col_res1:
     st.metric("Total vencidas (nominal)", f"R$ {total_nominal_vencidas:.2f}")
 with col_res2:
-    st.metric("Total futuras (nominal)", f"R$ {total_nominal_futuras:.2f}")
+    st.metric("Total a Vencer (nomina)", f"R$ {total_nominal_futuras:.2f}")
 
-st.metric("💰 Total para antecipação hoje", f"R$ {total_antecipado_futuras:.2f}")
+st.metric("💰 Total para pagamento antecipado hoje", f"R$ {total_antecipado_futuras:.2f}")
 if total_nominal_futuras > 0:
     st.metric("Desconto total em futuras", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
