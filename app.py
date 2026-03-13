@@ -166,4 +166,4 @@ with col_res2:
 
 st.metric("💰 Total para antecipação hoje", f"R$ {total_antecipado_futuras:.2f}")
 if total_nominal_futuras > 0:
-    st.metric("Desconto total em futuras", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
+    st.metric("Desconto total se pago na data atual com antecipaçao", f"R$ {total_nominal_futuras - total_antecipado_futuras:.2f}")
