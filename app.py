@@ -16,10 +16,10 @@ dia_vencimento = 1                           # DIA 01
 DESCONTO_MAXIMO = 0.4                         # 40% máximo (sobre o prazo total)
 MULTA = 0.10                                   # 10% sobre a parcela atrasada
 JUROS_MORA_MENSAL = 0.01                       # 1% ao mês
-data_atual = datetime(2026,3,12)
+#data_atual = datetime(2026,3,12)
 
 # Prazo total da última parcela (da assinatura ao vencimento) em meses
-T_total = 60.0  # fixo, pois são 60 meses
+T_total = 51.0  # fixo, pois são 60 meses
 
 # ==============================================
 # CÁLCULO DA TAXA DE JUROS
