@@ -76,6 +76,13 @@ st.set_page_config(page_title="Calculadora de Contrato - Fiat Mobi", layout="wid
 st.title("🚗 Calculadora de Parcelas - Contrato Fiat Mobi")
 st.markdown("---")
 
+# Mensagem padrão informativa
+st.info(
+    f"📌 **Valores calculados na data de referência indicada abaixo.** "
+    f"Os valores de parcelas futuras (antecipação) e vencidas (com acréscimos) são atualizados diariamente conforme as regras de descontos e acréscimos previstas no contrato. "
+    f"Para uma nova simulação, altere a data."
+)
+
 col1, col2 = st.columns(2)
 with col1:
     data_input = st.date_input(
@@ -85,8 +92,8 @@ with col1:
         format="DD/MM/YYYY"
     )
     data_hoje = datetime.combine(data_input, datetime.min.time())
-#with col2:
-   # st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
+with col2:
+    st.metric("Taxa de juros mensal", f"{taxa_mensal:.4%}")
 
 # Determinar última parcela futura
 venc_ultima = data_vencimento(60)
